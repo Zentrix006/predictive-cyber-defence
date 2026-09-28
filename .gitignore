@@ -3,6 +3,9 @@
 venv/
 .venv/
 backend/venv/
+backend/logs/
+ml-engine/dataset/clab-flowwm-lab-1/.tls/
+ml-engine/dataset/clab-flowwm-lab-1/authorized_keys
 ml-engine/data/raw/
 ml-engine/data/telemetry-capture/
 ml-engine/data/**/*.pcap
