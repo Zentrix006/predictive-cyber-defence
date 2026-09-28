@@ -1,0 +1,8 @@
+FROM zeek/zeek:latest
+
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tcpdump iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/local/zeek/logs

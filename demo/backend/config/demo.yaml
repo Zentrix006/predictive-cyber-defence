@@ -1,0 +1,52 @@
+demo:
+  name: Predictive Cyber Defence Live Cyber-Range
+  mode: controlled
+  simulation: true
+
+# The network is fully dynamic: no assets, infrastructure or scenarios are
+# pre-created. Devices appear as they register and heartbeat; THREAT ZONE /
+# CONTAINED / HONEYNET / decoy nodes are minted as a consequence of incidents.
+# This file only carries guardrails (safe challenge bank + decoy questions).
+
+# Safe challenge questions. Answer strength maps to simulation level (1-6).
+# Level -> simulated stage:
+#   1 -> reconnaissance, 2 -> discovery, 3 -> initial_access,
+#   4 -> execution, 5 -> lateral_movement, 6 -> collection
+challenges:
+  - question: "What is 27 + 18?"
+    answers:
+      - value: "45"
+        level: 3
+      - value: "35"
+        level: 1
+  - question: "Which protocol commonly carries web traffic?"
+    answers:
+      - value: "http"
+        level: 4
+      - value: "tcp"
+        level: 2
+  - question: "What does DNS resolve?"
+    answers:
+      - value: "domain names"
+        level: 5
+      - value: "packets"
+        level: 1
+  - question: "What number comes next: 2, 4, 8, 16?"
+    answers:
+      - value: "32"
+        level: 6
+      - value: "24"
+        level: 2
+  - question: "Which layer of the OSI model handles routing?"
+    answers:
+      - value: "network"
+        level: 5
+      - value: "session"
+        level: 1
+
+decoy_questions:
+  - question: "What is 5 × 7?"
+  - question: "Which protocol commonly carries web traffic?"
+  - question: "What does DNS resolve?"
+
+# Admin credential comes exclusively from DEMO_ADMIN_PIN environment variable.

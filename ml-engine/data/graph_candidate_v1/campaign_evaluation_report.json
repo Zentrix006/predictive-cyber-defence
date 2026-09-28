@@ -1,0 +1,7 @@
+{
+    "model": "G-FLOWWM",
+    "test_campaigns": 100,
+    "accuracy": 0.9359150528907776,
+    "ece": 0.06332843005657196,
+    "promotion_recommended": true
+}

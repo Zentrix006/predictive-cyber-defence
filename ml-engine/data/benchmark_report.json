@@ -1,0 +1,43 @@
+{
+  "benchmark_dataset": "/ml-engine/data/annotated_windows.csv",
+  "candidate_checkpoint": "/ml-engine/data/temporal_candidate_v2_7/candidate.pt",
+  "timestamp": "2026-09-24T17:46:06Z",
+  "baselines": {
+    "persistence": {
+      "model": "Persistence",
+      "state_forecast_mse": 0.24181364476680756,
+      "malicious_accuracy": 0.4767811704834606,
+      "evaluated_sequences": 1572
+    },
+    "logistic_regression": {
+      "model": "Logistic Regression",
+      "malicious_accuracy": 0.928117048346056,
+      "malicious_f1": 0.9320505111244738,
+      "malicious_recall": 0.9393939393939394,
+      "malicious_precision": 0.9248210023866349,
+      "evaluated_sequences": 1572
+    },
+    "flowwm": {
+      "model": "FLOWWM (Telemetry-V2)",
+      "state_forecast_mse": 0.13714007070671966,
+      "state_improvement_over_persistence": 0.432868766198159,
+      "malicious_accuracy": 0.9510178117048346,
+      "malicious_f1": 0.9538645895745955,
+      "malicious_recall": 0.9648484848484848,
+      "malicious_precision": 0.943127962085308,
+      "malicious_auprc": 0.9897608805769325,
+      "expected_calibration_error": 0.052440185552467725,
+      "malicious_temperature": 1.2000000476837158,
+      "stage_accuracy": 0.9709090909090909,
+      "stage_macro_f1": 0.33060109289617484,
+      "stage_tokens_evaluated": 825,
+      "evaluated_sequences": 1572
+    }
+  },
+  "promotion_gate_evaluation": {
+    "state_mse_beats_persistence": true,
+    "f1_beats_logistic_regression": true,
+    "calibration_within_tolerance": true,
+    "overall_promotion_recommended": true
+  }
+}

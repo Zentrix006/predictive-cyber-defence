@@ -1,0 +1,13 @@
+# GitHub release data hygiene
+.env
+venv/
+.venv/
+backend/venv/
+ml-engine/data/raw/
+ml-engine/data/telemetry-capture/
+ml-engine/data/**/*.pcap
+ml-engine/data/**/*.pcapng
+ml-engine/data/**/*.pt
+ml-engine/data/accuracy_cycle_*/
+ml-engine/data/temporal_candidate_v2_*/
+ml-engine/data/checkpoints*/

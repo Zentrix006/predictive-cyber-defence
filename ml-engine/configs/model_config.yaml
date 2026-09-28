@@ -1,0 +1,266 @@
+# World Model Configuration
+
+# Model Architecture
+model:
+  name: "WorldModel"
+  version: "1.0.0"
+  
+  # Input dimensions
+  num_node_features: 64        # Per-node feature dimension
+  num_edge_features: 16        # Per-edge feature dimension
+  num_global_features: 32      # Global graph features
+  
+  # Graph Encoder (GAT)
+  graph_encoder:
+    type: "GAT"
+    hidden_dim: 256
+    num_layers: 3
+    num_heads: 8
+    dropout: 0.1
+    residual: true
+    layer_norm: true
+  
+  # Host Encoder (MLP)
+  host_encoder:
+    type: "MLP"
+    input_dim: 100
+    hidden_dims: [256, 256]
+    output_dim: 256
+    dropout: 0.1
+    activation: "relu"
+    layer_norm: true
+  
+  # Traffic Encoder (Temporal CNN + Attention)
+  traffic_encoder:
+    type: "TemporalConvAttention"
+    input_dim: 50
+    hidden_dim: 256
+    num_layers: 3
+    kernel_sizes: [3, 5, 7]
+    num_heads: 4
+    dropout: 0.1
+  
+  # Fusion Layer
+  fusion:
+    type: "CrossAttention"
+    query_dim: 256
+    key_dim: 256
+    value_dim: 256
+    num_heads: 8
+    dropout: 0.1
+  
+  # Temporal Encoder (Transformer)
+  temporal_encoder:
+    type: "TransformerEncoder"
+    d_model: 256
+    nhead: 8
+    num_layers: 4
+    dim_feedforward: 1024
+    dropout: 0.1
+    activation: "gelu"
+    max_seq_len: 20
+    positional_encoding: "learned"
+  
+  # Prediction Heads
+  state_decoder:
+    type: "GraphDecoder"
+    latent_dim: 256
+    hidden_dim: 256
+    output_node_dim: 64
+    output_edge_dim: 16
+    num_layers: 3
+    dropout: 0.1
+  
+  stage_classifier:
+    type: "MLP"
+    input_dim: 256
+    hidden_dims: [256, 128, 64]
+    num_classes: 14  # MITRE ATT&CK stages
+    dropout: 0.1
+  
+  target_predictor:
+    type: "AttentionPredictor"
+    query_dim: 256
+    key_dim: 256
+    num_heads: 8
+    dropout: 0.1
+  
+  # Loss weights
+  loss_weights:
+    state_reconstruction: 1.0
+    stage_classification: 2.0
+    target_prediction: 1.5
+    consistency: 0.5
+  
+  # Training
+  training:
+    horizon: 4              # Prediction horizon (time steps)
+    context_window: 10      # Historical context window
+    teacher_forcing_ratio: 0.5
+    scheduled_sampling: true
+  
+  # Regularization
+  regularization:
+    weight_decay: 1e-4
+    label_smoothing: 0.1
+    gradient_clip: 1.0
+
+# Data Configuration
+data:
+  # CESNET-TimeSeries24 (temporal forecasting)
+  cesnet_timeseries24:
+    dataset_name: "Lystea/CESNET-TIMESERIES24-RAW"
+    subset: "ip_addresses_sample"  # Start with sample, scale to full
+    aggregation: "10min"           # 10min, 1h, 1d
+    metrics:
+      - "n_flows"
+      - "n_packets"
+      - "n_bytes"
+      - "n_dest_ip"
+      - "n_dest_asn"
+      - "n_dest_port"
+      - "tcp_udp_ratio_packets"
+      - "tcp_udp_ratio_bytes"
+      - "dir_ratio_packets"
+      - "dir_ratio_bytes"
+      - "avg_duration"
+      - "avg_ttl"
+    sequence_length: 20           # Context + horizon
+    prediction_horizon: 4
+    train_split: 0.7
+    val_split: 0.15
+    test_split: 0.15
+    normalize: true
+    normalization_method: "robust"  # robust, standard, minmax
+    fill_missing: "forward"         # forward, backward, interpolate, zero
+    max_ips: 10000                  # Limit for development
+    min_sequence_length: 15
+  
+  # UNSW-NB15 (attack classification)
+  unsw_nb15:
+    dataset_name: "lacg030175/UNSW-NB15"
+    subset: "temporal"
+    attack_categories:
+      - "Normal"
+      - "Generic"
+      - "Exploits"
+      - "Fuzzers"
+      - "DoS"
+      - "Reconnaissance"
+      - "Analysis"
+      - "Backdoor"
+      - "Shellcode"
+      - "Worms"
+    sequence_length: 10
+    train_split: 0.7
+    val_split: 0.15
+    test_split: 0.15
+  
+  # CICIDS2017 (attack classification)
+  cicids2017:
+    dataset_name: "lacg030175/CICIDS2017"
+    subset: "temporal"
+    attack_categories:
+      - "BENIGN"
+      - "DoS Hulk"
+      - "PortScan"
+      - "DDoS"
+      - "DoS GoldenEye"
+      - "FTP-Patator"
+      - "SSH-Patator"
+      - "DoS slowloris"
+      - "DoS Slowhttptest"
+      - "Bot"
+      - "Web Attack Brute Force"
+      - "Web Attack XSS"
+      - "Web Attack Sql Injection"
+      - "Infiltration"
+      - "Heartbleed"
+    sequence_length: 10
+    train_split: 0.7
+    val_split: 0.15
+    test_split: 0.15
+  
+  # Dataloader
+  dataloader:
+    batch_size: 32
+    num_workers: 4
+    pin_memory: true
+    persistent_workers: true
+    prefetch_factor: 2
+
+# Training Configuration
+training:
+  # Optimization
+  optimizer:
+    type: "AdamW"
+    lr: 1e-4
+    betas: [0.9, 0.999]
+    eps: 1e-8
+    weight_decay: 1e-4
+  
+  # Learning Rate Scheduler
+  scheduler:
+    type: "CosineAnnealingWarmRestarts"
+    T_0: 10
+    T_mult: 2
+    eta_min: 1e-6
+    warmup_epochs: 5
+    warmup_start_lr: 1e-6
+  
+  # Training Loop
+  epochs: 100
+  early_stopping_patience: 15
+  early_stopping_metric: "val_loss"
+  early_stopping_mode: "min"
+  gradient_accumulation_steps: 1
+  mixed_precision: true
+  
+  # Logging
+  log_every_n_steps: 50
+  val_check_interval: 1.0
+  limit_val_batches: 1.0
+  limit_test_batches: 1.0
+  
+  # Checkpointing
+  save_top_k: 3
+  monitor: "val_loss"
+  mode: "min"
+  save_last: true
+  every_n_epochs: 5
+  
+  # Hardware
+  accelerator: "auto"
+  devices: "auto"
+  precision: "16-mixed"
+  strategy: "ddp_find_unused_parameters_true"
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - "mse"
+    - "mae"
+    - "rmse"
+    - "mape"
+    - "stage_accuracy_top1"
+    - "stage_accuracy_top3"
+    - "stage_accuracy_top5"
+    - "target_hit_at_1"
+    - "target_hit_at_3"
+    - "target_hit_at_5"
+    - "target_mrr"
+    - "brier_score"
+    - "auc_roc_per_stage"
+  prediction_horizons: [1, 2, 3, 4]
+  calibration:
+    method: "temperature_scaling"
+    n_bins: 10
+
+# Inference Configuration
+inference:
+  batch_size: 1
+  device: "cuda"
+  use_onnx: true
+  onnx_optimization_level: "O3"
+  fp16: true
+  max_latency_ms: 100

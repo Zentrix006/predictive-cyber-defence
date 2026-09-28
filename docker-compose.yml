@@ -1,0 +1,274 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: cyber_defence
+      POSTGRES_USER: cyber_defence
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyber_defence -d cyber_defence"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://cyber_defence:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/cyber_defence
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env}
+      MINIO_BUCKET: evidence
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in .env}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      ELEVATED_TOKEN_EXPIRE_MINUTES: 10
+      GUEST_TOKEN_EXPIRE_MINUTES: 60
+      OPERATOR_USERNAME: ${OPERATOR_USERNAME:?Set OPERATOR_USERNAME in .env}
+      OPERATOR_PASSWORD_HASH: ${OPERATOR_PASSWORD_HASH:?Set OPERATOR_PASSWORD_HASH in .env}
+      ML_DEVICE: cuda
+      CUDA_VISIBLE_DEVICES: "0"
+      LOG_LEVEL: INFO
+      NETWORK_DISCOVERY_ENABLED: ${NETWORK_DISCOVERY_ENABLED:-false}
+      DEBUG: ${DEBUG:-false}
+      DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
+      PYTHONPATH: /app:/ml-engine
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./shared:/app/shared
+      - ./ml-engine:/ml-engine
+      - ./ml-engine/dataset/telemetry-capture:/lab-telemetry:ro
+    gpus: all
+
+  # One-off training container: runs the ML training as its own PID-1 process so
+  # it is not tied to the backend's lifecycle or docker-compose exec sessions.
+  # Launch with: docker compose run --rm -d train
+  train:
+    image: predictive-cyber-defence-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      PYTHONPATH: /ml-engine
+      PYTHONUNBUFFERED: "1"
+      ML_DEVICE: cuda
+      CUDA_VISIBLE_DEVICES: "0"
+    volumes:
+      - ./ml-engine:/ml-engine
+    working_dir: /ml-engine
+    command: ["python", "scripts/evaluate_campaign_holdouts.py"]
+    profiles: ["training"] # Only runs when explicitly requested
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      # Browser clients derive their own API and QR origins at runtime; these are
+      # SSR-only localhost fallbacks.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-}
+      # Disable Next.js overlay editor attempts inside Alpine containers
+      REACT_EDITOR: none
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - frontend_next:/app/.next
+
+# ---------------- DEMO CYBER-RANGE (isolated, controlled demo env) ---------
+  # Demo-2 is the single public LAN cyber-range. Its state is isolated in the
+  # `demo2` schema and its browser UI is published on :8088 for QR participants.
+  # host networking: heartbeats from LAN devices carry their REAL source IPs
+  # (identity resolution, honeypot attribution and edge IP blocks all key on
+  # the same address the edge sees on the wire).
+  demo-2-backend:
+    image: predictive-cyber-defence-demo-2-backend
+    build:
+      context: ./demo-2/backend
+      dockerfile: Dockerfile
+    network_mode: host
+    environment:
+      DATABASE_URL: postgresql+asyncpg://cyber_defence:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@127.0.0.1:5432/cyber_defence
+      DEMO_SCHEMA: demo2
+      DEMO_BASE_URL: ${DEMO_BASE_URL:-http://${DEMO_HOST_IP:-localhost}:8088}
+      ML_ENGINE_PATH: /ml-engine
+      DEMO_ADMIN_PIN: ${DEMO_ADMIN_PIN:?Set DEMO_ADMIN_PIN in .env}
+      PYTHONPATH: /app:/ml-engine
+      DEBUG: "false"
+      ML_DEVICE: cuda
+      CUDA_VISIBLE_DEVICES: "0"
+      LAN_IDENTITY_URL: http://127.0.0.1:8111
+      DECEPTION_EDGE_URL: http://127.0.0.1:8099
+      EDGE_SHARED_SECRET: ${EDGE_SHARED_SECRET:-edge-demo-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./demo-2/backend:/app
+      - ./ml-engine:/ml-engine
+    gpus: all
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8100 --reload
+
+  # Deception Edge — REAL network enforcement for the demo range: the
+  # production surface (:8090) that genuinely refuses blocked attacker IPs,
+  # the live honeypot listener (:8091) whose identity the engine pushes and
+  # whose hits are ingested as evidence, and the control plane (:8099).
+  # host networking so source IPs are the real LAN addresses of attackers.
+  demo-2-edge:
+    build:
+      context: ./demo-2/edge
+      dockerfile: Dockerfile
+    network_mode: host
+    environment:
+      EDGE_SHARED_SECRET: ${EDGE_SHARED_SECRET:-edge-demo-secret}
+    depends_on:
+      - demo-2-backend
+
+  # Reads only the host's passive neighbour/DNS view for IPs that opted into
+  # the demo attacker role. It has no scanner and binds to loopback only.
+  demo-2-identity:
+    build:
+      context: ./demo-2/backend
+      dockerfile: Dockerfile
+    network_mode: host
+    environment:
+      PYTHONPATH: /app
+    volumes:
+      - ./demo-2/backend:/app
+    command: uvicorn app.identity_main:app --host 127.0.0.1 --port 8111
+
+  demo-2:
+    build:
+      context: ./demo-2
+      dockerfile: Dockerfile
+    environment:
+      # start-demo.sh resolves wlan0 on every launch; QR audience links never
+      # depend on a stale localhost value.
+      NEXT_PUBLIC_DEMO_PUBLIC_URL: ${NEXT_PUBLIC_DEMO_PUBLIC_URL:-http://${DEMO_HOST_IP:-localhost}:8088}
+      NEXT_PUBLIC_DEMO_API_URL: ${NEXT_PUBLIC_DEMO_API_URL:-http://${DEMO_HOST_IP:-localhost}:8100/api/demo}
+      DEMO_API_INTERNAL: http://host.docker.internal:8100/api/demo
+      REACT_EDITOR: none
+    ports:
+      - "8088:8088"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - demo-2-backend
+    volumes:
+      - ./demo-2:/app
+      # Never consume host node_modules: its native Next/SWC binary may target a
+      # different libc than this Alpine image.
+      - /app/node_modules
+      - demo2_frontend_next:/app/.next
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - prometheus
+
+  loki:
+    image: grafana/loki:latest
+    volumes:
+      - ./config/loki.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    ports:
+      - "127.0.0.1:3100:3100"
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./config/promtail.yml:/etc/promtail/config.yml
+      - ./backend/logs:/var/log/backend
+      - ./frontend/logs:/var/log/frontend
+    depends_on:
+      - loki
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  frontend_next:
+  demo2_frontend_next:
+
+networks:
+  default:
+    name: cyber-defence-network

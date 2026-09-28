@@ -1,0 +1,28 @@
+{
+  "name": "demo-cyber-range-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 8088",
+    "build": "next build",
+    "start": "next start -p 8088",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "14.2.33",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "qrcode": "^1.5.3"
+  },
+  "optionalDependencies": {
+    "@next/swc-linux-x64-musl": "14.2.33"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.3.3"
+  }
+}

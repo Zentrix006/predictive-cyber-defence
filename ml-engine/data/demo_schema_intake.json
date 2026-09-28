@@ -1,0 +1,16 @@
+{
+  "status": "idle",
+  "started_at": null,
+  "completed_at": null,
+  "sources": [],
+  "errors": [],
+  "manifest": {
+    "created_at": "2026-09-09T00:59:17.636807+00:00",
+    "status": "review_required",
+    "serving_model_unchanged": true,
+    "demo_telemetry_records": 309,
+    "schema_contracts": [],
+    "schema_scan_status": "idle",
+    "next_step": "Review source provenance and labels, then launch an isolated candidate training job."
+  }
+}

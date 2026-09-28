@@ -1,0 +1,7 @@
+FROM alpine:latest AS tools
+
+FROM cowrie/cowrie:latest
+USER root
+COPY --from=tools /bin/busybox /bin/busybox
+COPY --from=tools /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
+USER 999:999

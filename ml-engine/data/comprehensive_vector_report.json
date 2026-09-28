@@ -1,0 +1,64 @@
+{
+    "model_architecture": "GraphFlowWorldModel (Cyber-JEPA)",
+    "suites": {
+        "old_known_attacks": {
+            "overall_accuracy": 0.9596,
+            "overall_cross_entropy_loss": 0.39623986004292966,
+            "average_latent_surprisal": 2.903318301946456e-06,
+            "vectors": {
+                "SYN Flood (Known DoS)": {
+                    "accuracy": 0.95952,
+                    "avg_surprisal": 2.4590292018729086e-06,
+                    "avg_loss": 0.18765142518281935
+                },
+                "SSH Brute Force": {
+                    "accuracy": 0.95936,
+                    "avg_surprisal": 3.3704905554259313e-06,
+                    "avg_loss": 0.4777915210723877
+                },
+                "Basic SQL Injection": {
+                    "accuracy": 0.95968,
+                    "avg_surprisal": 2.849643626177567e-06,
+                    "avg_loss": 0.5095621713399887
+                },
+                "Standard Botnet C2": {
+                    "accuracy": 0.95984,
+                    "avg_surprisal": 2.9341098243094165e-06,
+                    "avg_loss": 0.4099543225765228
+                }
+            }
+        },
+        "novel_zero_day_attacks": {
+            "overall_accuracy": 0.7684,
+            "overall_cross_entropy_loss": 1.838677526652813,
+            "average_latent_surprisal": 4.581694583180251e-06,
+            "vectors": {
+                "Polymorphic ICMP Tunneling (Zero-Day Exfil)": {
+                    "accuracy": 0.956,
+                    "avg_surprisal": 5.6943734743981624e-06,
+                    "avg_loss": 0.4192987735271454
+                },
+                "Adversarial Mimicry (Subversion)": {
+                    "accuracy": 0.95968,
+                    "avg_surprisal": 2.9046206263956264e-06,
+                    "avg_loss": 0.38244983649253844
+                },
+                "Distributed Graph Topology Mutation": {
+                    "accuracy": 0.19888,
+                    "avg_surprisal": 7.2851420809456616e-06,
+                    "avg_loss": 6.051809032440185
+                },
+                "Supply Chain Compromise (Novel Lateral)": {
+                    "accuracy": 0.95904,
+                    "avg_surprisal": 2.4426421509815553e-06,
+                    "avg_loss": 0.5011524641513825
+                }
+            }
+        }
+    },
+    "intelligence_analysis": {
+        "accuracy_degradation_on_novel": 0.19120000000000004,
+        "surprisal_delta_on_novel": 1.6783762812337952e-06,
+        "conclusion": "Model successfully uses latent surprisal to detect novel threats even if accuracy drops on unseen labels."
+    }
+}

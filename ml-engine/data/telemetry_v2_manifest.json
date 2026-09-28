@@ -1,0 +1,102 @@
+{
+  "schema_version": "telemetry-v2",
+  "dataset": "CSE-CIC-IDS2018",
+  "output_sha256": "4e02fd4b4c01c6b3b0bae4677966980cea89f64aad0cd47a2467d5e50de8e2dd",
+  "sources": [
+    {
+      "capture_id": "Friday-02-03-2018",
+      "partition": "split",
+      "sha256": "d96f38e7496aba83475031e6fb8c6fdf1abf6aa1b71325a917798f3c7de93de1",
+      "rows": 1048575,
+      "windows": 2963,
+      "bad_timestamps": 0
+    },
+    {
+      "capture_id": "Friday-16-02-2018",
+      "partition": "train",
+      "sha256": "1a4919faa0c49c7af97230b0c2d076eba23ee6dd81103a3801d51ac316355d8b",
+      "rows": 1048574,
+      "windows": 500,
+      "bad_timestamps": 1
+    },
+    {
+      "capture_id": "Friday-23-02-2018",
+      "partition": "development",
+      "sha256": "d0a7f5059d9823b6e9b392b759e306481a3502d190dea7a1b5502ae079ea069b",
+      "rows": 1048575,
+      "windows": 3335,
+      "bad_timestamps": 0
+    },
+    {
+      "capture_id": "Thuesday-20-02-2018",
+      "partition": "train",
+      "sha256": "7287a4d7740a1dddbf330ceb2beb6a4889d33ba63674558a68b5eb50d16711df",
+      "rows": 7948748,
+      "windows": 4304,
+      "bad_timestamps": 0
+    },
+    {
+      "capture_id": "Thursday-01-03-2018",
+      "partition": "split",
+      "sha256": "b0534c5d7d8b41e03df71c6966c995d116a8ed28e61f377c8b14cdf5d28f4edf",
+      "rows": 331100,
+      "windows": 3227,
+      "bad_timestamps": 25
+    },
+    {
+      "capture_id": "Thursday-15-02-2018",
+      "partition": "development",
+      "sha256": "fa2947a8256d81ee9103ae16139d62d0e17aa23e696ee80d9e76fb51c01c9c4b",
+      "rows": 1048575,
+      "windows": 3429,
+      "bad_timestamps": 0
+    },
+    {
+      "capture_id": "Thursday-22-02-2018",
+      "partition": "train",
+      "sha256": "da33c927018274f9d49b145baa00e4ce0526c25b3b890b34c489e247b5e24544",
+      "rows": 1048575,
+      "windows": 3299,
+      "bad_timestamps": 0
+    },
+    {
+      "capture_id": "Wednesday-14-02-2018",
+      "partition": "train",
+      "sha256": "acff8bc61376ee031d80878ee6099e0b1a87a1bd711d8068298421418c9f8147",
+      "rows": 1048575,
+      "windows": 3260,
+      "bad_timestamps": 0
+    },
+    {
+      "capture_id": "Wednesday-21-02-2018",
+      "partition": "calibration",
+      "sha256": "a5f4a1c2689e0aa6566c03a58466de9c407c0be0cbd3cc69306544026611be04",
+      "rows": 1048575,
+      "windows": 637,
+      "bad_timestamps": 0
+    },
+    {
+      "capture_id": "Wednesday-28-02-2018",
+      "partition": "calibration",
+      "sha256": "f15e2a12304446058a0186c8ad67de2bd15735a9ba5c70c9a1f4c4242ab06771",
+      "rows": 613071,
+      "windows": 3406,
+      "bad_timestamps": 33
+    }
+  ],
+  "stage_support_windows": {
+    "1": 50,
+    "6": 1502,
+    "8": 1548,
+    "10": 1865,
+    "12": 1347
+  },
+  "partition_windows": {
+    "train": 15947,
+    "development": 6764,
+    "calibration": 4043,
+    "test": 1606
+  },
+  "label_policy": "weak phase mapping from official flow labels; confidence 0.70",
+  "promotion_eligible": false
+}

@@ -1,0 +1,11 @@
+{
+    "metrics": {
+        "malicious_f1": 0.985,
+        "stage_macro_f1": 0.812,
+        "ece": 0.054,
+        "conformal_threshold": 0.001171374503755941,
+        "novelty_auroc": 0.923,
+        "novelty_auprc": 0.941
+    },
+    "gate_passed": true
+}

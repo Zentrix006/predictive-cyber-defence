@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #050816;
+  --bg-secondary: #0f1726;
+  --bg-tertiary: #151f33;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --border-primary: #27344a;
+  --accent-blue: #38BDF8;
+  --accent-green: #34D399;
+  --accent-red: #FB7185;
+  --accent-yellow: #FBBF24;
+  --accent-purple: #A78BFA;
+  --status-normal: #10B981;
+  --status-suspicious: #F59E0B;
+  --status-compromised: #EF4444;
+  --status-contained: #3B82F6;
+  --status-deception: #8B5CF6;
+  --status-offline: #6B7280;
+}
+
+.light {
+  color-scheme: light;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F1F5F9;
+  --bg-tertiary: #E2E8F0;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --border-primary: #E2E8F0;
+}
+
+.light option {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.topology-workspace:fullscreen {
+  width: 100vw;
+  height: 100dvh;
+}
+
+.topology-workspace {
+  background: radial-gradient(1200px 620px at 50% 30%, rgba(25, 38, 63, 0.98) 0%, rgba(9, 13, 24, 0.99) 62%, #02040a 100%);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-blue);
+  color: white;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.panel-surface {
+  box-shadow: 0 16px 38px rgba(2, 8, 23, 0.28);
+}
+
+.metric-card {
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.98), rgba(12, 18, 30, 0.98));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent-blue) 48%, var(--border-primary));
+  background: color-mix(in srgb, var(--bg-secondary) 88%, var(--accent-blue));
+}
+
+/* Chrome tokens are deliberately scoped so the topology keeps its palette. */
+.console-shell-chrome {
+  --text-muted: #94a3b8;
+  color-scheme: dark;
+}
+
+.light .console-shell-chrome {
+  color-scheme: light;
+  --text-muted: #475569;
+  --border-primary: #cbd5e1;
+  --accent-blue: #0369a1;
+  --accent-green: #047857;
+  --accent-red: #be123c;
+  --accent-yellow: #92400e;
+  --accent-purple: #6d28d9;
+}
+
+.console-shell-chrome button,
+.console-shell-chrome input,
+.console-shell-chrome select {
+  min-height: 44px;
+}
+
+.console-shell-chrome button:has(> svg:only-child) {
+  min-width: 44px;
+}
+
+.console-shell-chrome button > svg:only-child {
+  margin-inline: auto;
+}
+
+.console-metric {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.light .metric-card {
+  background: linear-gradient(180deg, #ffffff, #f1f5f9);
+  box-shadow: inset 0 1px 0 #ffffff;
+}
+
+.light .metric-card:hover {
+  background: #eaf2f8;
+}
+
+.light .panel-surface {
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .console-shell-chrome .animate-fade-in {
+    animation: none;
+  }
+  .metric-card {
+    transition: none;
+  }
+  .metric-card:hover {
+    transform: none;
+  }
+}

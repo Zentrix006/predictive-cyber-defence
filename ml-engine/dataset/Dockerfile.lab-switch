@@ -1,0 +1,4 @@
+FROM alpine:latest
+RUN apk add --no-cache bridge-utils iproute2 iproute2-tc net-snmp tcpdump
+COPY configs/core-switch/snmp_startup.sh /usr/local/bin/snmp_startup.sh
+RUN chmod 0755 /usr/local/bin/snmp_startup.sh

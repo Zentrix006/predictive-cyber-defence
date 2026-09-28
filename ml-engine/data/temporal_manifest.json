@@ -1,0 +1,283 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-09-23T13:27:48.123839+00:00",
+  "audit_file": "/ml-engine/data/dataset_audit.json",
+  "audit_sha256": "2026-09-23T13:24:20.089607+00:00",
+  "context_window": 10,
+  "forecast_horizon": 4,
+  "temporal_policy": "source-separated chronological holdout; no cross-source windows",
+  "trusted_timestamps_required_for_production": true,
+  "files": [
+    {
+      "source": "UNSW-NB15-train",
+      "path": "/ml-engine/data/raw/UNSW_NB15_training-set.csv",
+      "sha256": "7ec02e7e44d72bd265716b33fda0c7f2188b658e3a4ae1aa2c4b306134cd818c",
+      "rows_audited": 30000,
+      "stage_support": {
+        "discovery": 151,
+        "execution": 5878,
+        "impact": 14271,
+        "lateral_movement": 20,
+        "persistence": 49,
+        "reconnaissance": 2748,
+        "unknown": 6883
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "UNSW-NB15-test",
+      "path": "/ml-engine/data/raw/UNSW_NB15_testing-set.csv",
+      "sha256": "0ebd9eb06d53ae223fbe7948737985e851e00e9c20140508d653de4b1655fdd6",
+      "rows_audited": 30000,
+      "stage_support": {
+        "unknown": 30000
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "NSL-KDD",
+      "path": "/ml-engine/data/raw/NSL_KDD_Train.csv",
+      "sha256": "caa90200059db99c8101f4dd79585b2c39edd868105b78ac64b30d163291837c",
+      "rows_audited": 30000,
+      "stage_support": {
+        "collection": 1,
+        "credential_access": 11,
+        "execution": 2,
+        "exfiltration": 234,
+        "impact": 10993,
+        "initial_access": 6,
+        "lateral_movement": 3,
+        "persistence": 4,
+        "privilege_escalation": 10,
+        "reconnaissance": 2744,
+        "unknown": 15992
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "KDD99",
+      "path": "/ml-engine/data/raw/kddcup99/kddcup.data_10_percent.txt",
+      "sha256": "6e4fb18b2e55c674812949513dd6b099a5aeebf2a79228b547d1e842b836d3ae",
+      "rows_audited": 30000,
+      "stage_support": {
+        "credential_access": 53,
+        "execution": 1,
+        "impact": 3816,
+        "privilege_escalation": 3,
+        "reconnaissance": 111,
+        "unknown": 26016
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CIC-IDS2017-DDos",
+      "path": "/ml-engine/data/raw/cicids2017/DDos.csv",
+      "sha256": "6ff1580f5f81c0ae28a26f7631721018577f5f7c5e0feac28b795fcfe7b411ee",
+      "rows_audited": 30000,
+      "stage_support": {
+        "impact": 9889,
+        "unknown": 20111
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CIC-IDS2017-Friday-WorkingHours-Morning.pcap_ISCX",
+      "path": "/ml-engine/data/raw/cicids2017/Friday-WorkingHours-Morning.pcap_ISCX.csv",
+      "sha256": "53a41c24d570ea83b7ac55b2e94df94e7a8216aeb80a2af0246b6bc8bb543000",
+      "rows_audited": 30000,
+      "stage_support": {
+        "command_and_control": 2,
+        "unknown": 29998
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CIC-IDS2017-Infiltration",
+      "path": "/ml-engine/data/raw/cicids2017/Infiltration.csv",
+      "sha256": "6bcda3857c2504676034e3ea57762d38393cc734cb377a726bd5cb153961b1b5",
+      "rows_audited": 30000,
+      "stage_support": {
+        "unknown": 30000
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CIC-IDS2017-Monday-WorkingHours.pcap_ISCX",
+      "path": "/ml-engine/data/raw/cicids2017/Monday-WorkingHours.pcap_ISCX.csv",
+      "sha256": "852c4beb34eda186f32561fa79df7a0747e92e1a6535b01270820dd9ffe17f34",
+      "rows_audited": 30000,
+      "stage_support": {
+        "unknown": 30000
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CIC-IDS2017-PortScan",
+      "path": "/ml-engine/data/raw/cicids2017/PortScan.csv",
+      "sha256": "ca1824c51bfbb7b3c72290a11be04366ba8815878c6a1cc5c44cb1cee269e99b",
+      "rows_audited": 30000,
+      "stage_support": {
+        "reconnaissance": 7,
+        "unknown": 29993
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CIC-IDS2017-Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX",
+      "path": "/ml-engine/data/raw/cicids2017/Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv",
+      "sha256": "d67066211fb1689c78406f1506f4c44704ecb92088353d5c96d96d6474eb819d",
+      "rows_audited": 30000,
+      "stage_support": {
+        "credential_access": 418,
+        "unknown": 29582
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CIC-IDS2017-Tuesday-WorkingHours.pcap_ISCX",
+      "path": "/ml-engine/data/raw/cicids2017/Tuesday-WorkingHours.pcap_ISCX.csv",
+      "sha256": "52b8692ae8c7d2ed04671fe2b98335693c0a92c7ab157d8c8b534d6523080851",
+      "rows_audited": 30000,
+      "stage_support": {
+        "unknown": 30000
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CIC-IDS2017-Wednesday-workingHours.pcap_ISCX",
+      "path": "/ml-engine/data/raw/cicids2017/Wednesday-workingHours.pcap_ISCX.csv",
+      "sha256": "893c27dc968bf7a8adef1689f90be55ca4a4dc3088fb63d6ff247ac56856df2a",
+      "rows_audited": 30000,
+      "stage_support": {
+        "impact": 433,
+        "unknown": 29567
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CTU13-CTU13_Attack_Traffic",
+      "path": "/ml-engine/data/raw/CTU13_Attack_Traffic.csv",
+      "sha256": "518b82ddb67e20d53500b3a1719e512d2538d7a11a714078ea89f397804dd3d3",
+      "rows_audited": 30000,
+      "stage_support": {
+        "command_and_control": 30000
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    },
+    {
+      "source": "CTU13-CTU13_Normal_Traffic",
+      "path": "/ml-engine/data/raw/CTU13_Normal_Traffic.csv",
+      "sha256": "2a326a3ed812d90de30783bb5adb8f2899e25b6884b9435399c04d8f72dc1adb",
+      "rows_audited": 30000,
+      "stage_support": {
+        "unknown": 30000
+      },
+      "ordering": "row_order_unverified",
+      "partition_policy": {
+        "train": "chronological_prefix",
+        "validation": "chronological_tail",
+        "test": "held_out_source_or_later_capture",
+        "embargo_windows": 13,
+        "validation_fraction": 0.15
+      }
+    }
+  ],
+  "quality": {
+    "audit_errors": [],
+    "zero_support_stages": [
+      "defense_evasion"
+    ],
+    "row_order_warning": "row_order_unverified sources are auditable but not sufficient evidence of attacker chronology"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "dataset": "UNSW-train, UNSW-test, NSL-KDD, KDD99, cic-DDos, cic-Friday-WorkingHours-Morning.pcap_ISCX, cic-Infiltration, cic-Monday-WorkingHours.pcap_ISCX, cic-PortScan, cic-Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX, cic-Tuesday-WorkingHours.pcap_ISCX, cic-Wednesday-workingHours.pcap_ISCX, ctu-CTU13_Attack_Traffic, ctu-CTU13_Normal_Traffic",
+  "n_test": 15164,
+  "logistic_regression": {
+    "precision": 0.9782966621763209,
+    "recall": 0.9828571428571429,
+    "f1": 0.9805716000300052,
+    "false_positive_rate": 0.017030772844726334,
+    "auc_roc": 0.9946434973974753
+  },
+  "world_model": {
+    "precision": 0.9728138528138528,
+    "recall": 0.844812030075188,
+    "f1": 0.9043058350100603,
+    "false_positive_rate": 0.01844021611463472,
+    "auc_roc": 0.9808452597314286
+  },
+  "improvement_f1": -0.07626576501994486,
+  "improvement_fpr": -0.0014094432699083871,
+  "notes": "World model uses temporal context + K-step infiltration head; LR uses flattened context windows."
+}
