@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=flat-square&logo=postgresql" />
   <img src="https://img.shields.io/badge/Redis-Cache-DC382D?style=flat-square&logo=redis" />
   <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?style=flat-square&logo=docker" />
-  <img src="https://img.shields.io/badge/License-To%20be%20selected-lightgrey?style=flat-square" />
+  <img src="https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square" />
 </p>
 
 ---
@@ -291,7 +291,9 @@ MITRE ATT&CK • Zeek • PyTorch • FastAPI • PostgreSQL • Redis • Docke
 
 ## 📜 License
 
-No license has been selected yet. Add the project’s approved license before accepting external contributions or redistributing the repository.
+This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+Dataset, capture, MITRE ATT&CK, dependency, and model-artifact terms are documented in [DATA_LICENSES.md](DATA_LICENSES.md).
 
 <p align="center"><b>Forecast earlier • Explain clearly • Respond safely</b></p>
 <p align="center">Built for authorized cyber defence research and responsible security engineering.</p>
