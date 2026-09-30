@@ -196,7 +196,10 @@ The live collector normalizes events, applies provenance gates, and can produce 
 
 
 
-https://github.com/user-attachments/assets/15564b87-2c39-4b5f-a427-1e5e6a6eb77d
+
+https://github.com/user-attachments/assets/4e6f1da3-c547-4d2f-9257-68032b811c19
+
+
 
 
 
