@@ -1,49 +1,101 @@
-<h1 align="center">🛡️ ThreatForage</h1>
-<h3 align="center">AI-Based Network Attack Forecasting from Network Traffic Data</h3>
+<div align="center">
 
-<p align="center">SIH 2026 · Problem Statement SIH26153 · National Technical Research Organisation (NTRO)</p>
+# 🛡️ ThreatForage
 
-<p align="center">
-  <a href="https://github.com/Zentrix006/predictive-cyber-defence">Source code on GitHub</a> ·
-  <a href="docs/SIH26153_ARCHITECTURE.md">2-page architecture</a> ·
-  <a href="docs/SIH26153_DEMO_VIDEO.md">2-minute demo script</a> ·
-  <a href="docs/SIH26153_TECHNICAL_PRESENTATION.md">5-slide technical presentation</a>
+### Predict network risk over time. Give analysts evidence they can inspect.
+
+<p>
+  <img src="https://img.shields.io/badge/SIH-26153-2563EB?style=for-the-badge" alt="SIH problem 26153" />
+  <img src="https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/UI-Next.js-black?style=for-the-badge&logo=nextdotjs" alt="Next.js" />
+  <img src="https://img.shields.io/badge/ML-PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch" />
+  <img src="https://img.shields.io/badge/Runtime-Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/License-Apache--2.0-4C1?style=for-the-badge" alt="Apache 2.0" />
 </p>
+
+**An open-source research prototype for temporal network-attack forecasting and security-analyst decision support.**
+
+[Get started](#-quick-start) · [Architecture](#-how-it-fits-together) · [Live telemetry](#-live-telemetry) · [Security boundary](#-important-limitations)
+
+</div>
 
 ---
 
-ThreatForage is a research prototype for temporal network-risk forecasting and analyst decision support. It combines flow/packet analysis, temporal network-state modelling, MITRE ATT&CK stage mapping, investigation evidence, and a controlled LAN demonstration range.
+## Why ThreatForage?
 
-It is not a replacement for an IDS, an incident-response team, or a validated production change-control system. Model forecasts are advisory; do not connect automated containment to production devices without independent evaluation, operator approval, and a tested rollback path.
+An intrusion unfolds over time. ThreatForage explores whether sequences of network activity can provide earlier, more interpretable risk signals than treating each flow as an isolated benign/malicious classification.
 
-## What is included
+```text
+flows + packets + context  →  time-windowed network states  →  future risk and stage hypotheses
+```
 
-- **FLOWWM forecasting:** learns from time-windowed traffic-state features and predicts future risk/stage trajectories with model explanations and uncertainty/novelty indicators.
-- **Passive Analysis:** accepts PCAP/PCAPNG for bounded packet/header, flow, graph, and behaviour analysis; exports reports and supports preserving investigation evidence.
-- **Live Telemetry:** reads Zeek JSON and NetFlow/IPFIX through a supervised collector. It reports provenance and only admits fresh, explicitly allowlisted production-source/CIDR records into trusted graph windows. The default lab profile is inspection-only.
-- **SOC workspaces:** Command Center, topology, attack forecast, threat actors, deception, forensics, infrastructure, graph analysis, Model Lab, AI Intelligence, and telemetry.
-- **Demo-2:** an isolated LAN cyber-range with QR-based device roles, live Demo-2 heartbeats/events, attacker progression, honeynet/deception, and its own topology. Demo-2 telemetry is labelled separately from production packet telemetry.
+The operator console brings investigation, topology, forecasts, evidence, and model evaluation into one place. Predictions are advisory; operators retain control of response actions.
 
-## Technology
+## ✨ What you can explore
 
-| Layer | Components |
+| Workspace | Purpose |
 |---|---|
-| UI | Next.js 14, React, TypeScript, Tailwind CSS, Zustand |
-| API | FastAPI, Pydantic, SQLAlchemy, WebSockets |
-| Data | PostgreSQL, Redis; local evidence paths; MinIO service in Compose |
-| ML | PyTorch FLOWWM temporal Transformer/state-transition model, belief rollouts, stage/risk/novelty components; CPU fallback and CUDA where available |
-| Telemetry/ops | Zeek, PCAP/PCAPNG, flow CSV, NetFlow/IPFIX, Prometheus, Grafana, Loki, Docker Compose |
+| **Command Center** | Review incidents, asset context, and the current network picture. |
+| **Passive Analysis** | Inspect PCAP/PCAPNG and supported flow data without interacting with the source network. |
+| **Live Telemetry** | View collector status, normalized records, source provenance, and trusted graph readiness. |
+| **Graph Analysis & topology** | Explore observed network relationships and model-generated graph context. |
+| **Forecast & intelligence** | Review risk/stage forecasts, explanations, novelty signals, and threat context. |
+| **Model Lab** | Examine training/evaluation artifacts and benchmark results. |
+| **Demo-2** | Run a separate LAN cyber-range demonstration with role-based joining and simulated attacker progression. |
 
-## Quick start
+> **Demo-2 is a cyber-range simulation.** Its events and heartbeats are not production packet telemetry or evidence of real attacks.
+
+## 🧠 How it fits together
+
+```mermaid
+flowchart LR
+  subgraph Sources[Authorized data sources]
+    PCAP[PCAP / flow files]
+    ZEEK[Zeek JSON]
+    EXPORT[NetFlow / IPFIX]
+    TOPO[Identity and topology evidence]
+  end
+
+  subgraph Platform[ThreatForage]
+    UI[Next.js SOC console]
+    API[FastAPI control and telemetry API]
+    NORM[Normalize and attach provenance]
+    GRAPH[Time-windowed graph and state]
+    MODEL[FLOWWM evaluation and forecast components]
+    STORE[(PostgreSQL / Redis / evidence storage)]
+  end
+
+  PCAP --> API
+  ZEEK --> NORM
+  EXPORT --> NORM
+  TOPO --> API
+  NORM --> GRAPH --> MODEL
+  API <--> UI
+  API <--> STORE
+  MODEL --> API
+```
+
+### Technology at a glance
+
+| Area | Stack |
+|---|---|
+| Web | Next.js, React, TypeScript, Tailwind CSS, Zustand |
+| API | FastAPI, Pydantic, SQLAlchemy, WebSockets |
+| ML | PyTorch, temporal network-state modelling, calibration/evaluation tooling |
+| Storage & observability | PostgreSQL, Redis, MinIO, Prometheus, Grafana, Loki |
+| Telemetry inputs | Zeek JSON, PCAP/PCAPNG, flow CSV, optional NetFlow/IPFIX |
+| Local deployment | Docker Compose; CPU operation with optional NVIDIA acceleration where configured |
+
+## 🚀 Quick start
 
 ### Requirements
 
-- Docker Engine and Docker Compose v2
-- 8 GB RAM minimum; 16 GB recommended for a full local stack
-- Linux recommended for WLAN/LAN Demo-2 and Containerlab workflows
-- NVIDIA Container Toolkit only when using an NVIDIA GPU; the inference/training code also supports CPU
+- Docker Engine with Docker Compose v2
+- 8 GB RAM minimum; 16 GB recommended for the full stack
+- Linux recommended for WLAN/LAN Demo-2 workflows
+- NVIDIA Container Toolkit only when using a supported NVIDIA GPU
 
-### Start the stack
+### Configure and launch
 
 ```bash
 git clone https://github.com/Zentrix006/predictive-cyber-defence.git
@@ -51,7 +103,7 @@ cd predictive-cyber-defence
 cp .env.example .env
 ```
 
-Edit `.env` before starting: replace the PostgreSQL, MinIO, and JWT placeholders and set an operator username/password hash. Keep `DEV_AUTH_BYPASS=false`. Then run:
+Edit `.env` before starting. Replace the database, MinIO, JWT, and operator-auth placeholders with unique values; keep `DEV_AUTH_BYPASS=false`. Do not commit `.env`.
 
 ```bash
 docker compose up -d --build
@@ -59,65 +111,98 @@ docker compose ps
 curl http://localhost:8000/health/ready
 ```
 
-The readiness response should report database and Redis as `ok`. The main frontend and Demo-2 use development servers inside Compose, which is suitable for a local demonstration, not a hardened public deployment.
+Readiness should report the database and Redis as `ok`.
 
-### Local service URLs
+### Local services
 
-| Service | URL |
+| Service | Address |
 |---|---|
 | Main SOC console | <http://localhost:3000> |
-| Demo-2 LAN range | <http://localhost:8088> |
-| Main API readiness | <http://localhost:8000/health/ready> |
-| Main API / Swagger | <http://localhost:8000/api/v1/docs> |
-| Demo-2 API | <http://localhost:8100/api/demo/command/health> |
+| Demo-2 range | <http://localhost:8088> |
+| API readiness | <http://localhost:8000/health/ready> |
+| API / Swagger | <http://localhost:8000/api/v1/docs> |
+| Demo-2 API health | <http://localhost:8100/api/demo/command/health> |
 | Grafana | <http://localhost:3001> (localhost-bound) |
 | Prometheus | <http://localhost:9090> (localhost-bound) |
 | MinIO console | <http://localhost:9001> (localhost-bound) |
 
-To stop services without deleting persistent data, run `docker compose down`. Do not add `-v` unless you intentionally want to delete the local database and service volumes.
+Stop containers without removing persistent data:
 
-### LAN Demo-2
+```bash
+docker compose down
+```
 
-For other devices on the same authorized Wi-Fi/LAN to join, connect the host to `wlan0`, then start/restart Demo-2 using:
+Avoid `docker compose down -v` unless you intentionally want to delete local database and service volumes.
+
+### Join Demo-2 from the LAN
+
+On a trusted, authorized local network, connect the host to `wlan0` and run:
 
 ```bash
 ./start-demo.sh
 ```
 
-The script obtains the current IPv4 address from `wlan0` and configures the QR/join URL for that address. If this machine uses a different interface, update the script/config deliberately rather than publishing a localhost QR. Do not expose the demo range to an untrusted network.
+The script derives the join/QR address from the current WLAN IPv4 address. DHCP may change that address; restart the script after network changes. Do not expose the cyber-range to an untrusted network.
 
-## Live telemetry setup and trust boundary
+## 📡 Live telemetry
 
-The collector is **disabled by default**. Production visibility requires an authorized Zeek/SPAN/TAP feed or approved flow exporter. Separate the management plane from passive data capture: management reaches network devices for authenticated read-only discovery; the capture plane receives mirrored server/device-VLAN traffic and must not be used to configure devices.
+The checked-in `.env.example` enables the collector in **lab/inspection mode** while leaving UDP flow export disabled. In this profile, the collector can inspect mounted lab Zeek records, but observations are not trusted graph input. Starting the collector does not connect a physical network sensor by itself.
 
-Before any records become trusted graph input, configure the source profile, source ID allowlist, and protected CIDRs in `.env`:
+To apply an environment change:
 
-```env
-LIVE_TELEMETRY_ENABLED=true
-LIVE_TELEMETRY_PROFILE=production
-LIVE_TELEMETRY_APPROVED_SOURCE_IDS=zeek,netflow_ipfix
-LIVE_TELEMETRY_APPROVED_CIDRS=<authorized-server-or-device-vlan-cidrs>
-FLOW_EXPORT_ENABLED=true
-FLOW_EXPORT_ALLOWED_CIDRS=<authorized-exporter-address-cidrs>
+```bash
+docker compose up -d --no-deps backend
+docker compose logs --tail=100 backend
 ```
 
-Replace the examples with values approved by the network owner. Lab-file records and unscoped observations remain inspectable but do not enter trusted graph windows. This collector does not automatically enroll devices or configure switches/routers. The collector-to-model boundary, enablement steps, API checks, production allowlists, and honest model-training limitations are documented in the [Live Telemetry and FLOWWM Runbook](docs/LIVE_TELEMETRY_MODEL_RUNBOOK.md). See also the [architecture and deployment notes](docs/SIH26153_ARCHITECTURE.md). The workspace-level `work status.md` tracks engineering progress but is maintained outside this published project tree.
+In the main console, use **Settings → Network** to control the collector and **Network → Live Telemetry** to inspect records and provenance. Authenticated read-only endpoints are available at `/api/v1/telemetry/status`, `/sources`, `/records`, and `/graph`.
 
-## Data, evaluation, and limitations
+### Connecting an authorized production source
 
-The project contains ingestion, normalization, temporal feature construction, training/evaluation scripts, and public-dataset support. A model score is meaningful only with the dataset/version, campaign-disjoint split, class/stage support, calibration, and baseline reported alongside it. Synthetic Demo-2 traffic demonstrates application behaviour; it is not evidence of real-world generalization or production mitigation efficacy. Do not claim 100% accuracy.
+Before using real network telemetry, obtain network-owner approval and configure the actual sensor identity and monitored CIDRs. Keep management and capture planes separate; use a passive SPAN/TAP sensor or approved exporter. For example:
 
-Raw captures may contain personal or sensitive data. Use only authorized telemetry, minimize retention, restrict evidence access, and do not commit PCAPs, credentials, production logs, model checkpoints, or runtime databases to source control.
+```dotenv
+LIVE_TELEMETRY_ENABLED=true
+LIVE_TELEMETRY_PROFILE=production
+LIVE_TELEMETRY_APPROVED_SOURCE_IDS=<approved-sensor-id>
+LIVE_TELEMETRY_APPROVED_CIDRS=<authorized-vlan-cidrs>
 
-## Submission package
+# Optional NetFlow/IPFIX listener — only after exporter ACLs are in place
+FLOW_EXPORT_ENABLED=true
+FLOW_EXPORT_ALLOWED_CIDRS=<approved-exporter-address>/32
+```
 
-- [Source code repository](https://github.com/Zentrix006/predictive-cyber-defence)
-- [Architecture document — max 2 pages](docs/SIH26153_ARCHITECTURE.md)
-- [Demo video plan and timed narration — max 2 minutes](docs/SIH26153_DEMO_VIDEO.md)
-- [Technical presentation — exactly 5 proposed slides](docs/SIH26153_TECHNICAL_PRESENTATION.md)
+Use real, owner-approved values; never use a catch-all exporter allowlist. The exporter sender allowlist and flow endpoint scope are separate controls. Restart the backend, then check source counts, trusted counts, freshness, parse errors, and capture-loss counters before relying on the feed.
 
-The video and slides are prepared as content/storyboards; capture the actual UI and record the final media from the running authorized environment before submission. Never present simulated Demo-2 activity as a real-world intrusion capture.
+See the [Live Telemetry and FLOWWM Runbook](docs/LIVE_TELEMETRY_MODEL_RUNBOOK.md) for the full enablement, provenance, API, and operational workflow.
 
-## License
+## 🔬 Model workflow and evaluation
 
-The published GitHub release is licensed under Apache-2.0; see the repository [LICENSE](https://github.com/Zentrix006/predictive-cyber-defence/blob/master/LICENSE), [NOTICE](https://github.com/Zentrix006/predictive-cyber-defence/blob/master/NOTICE), and data/dependency terms before redistributing datasets or model artifacts.
+The repository contains data preparation, training, and evaluation workflows. Treat model results as evidence only when reported with dataset provenance, campaign/site-separated splits, class and stage support, baseline comparison, calibration, and false-positive rates. See the ML documentation under [`ml-engine/`](ml-engine/).
+
+The live collector normalizes events, applies provenance gates, and can produce trusted graph snapshots. **It does not automatically retrain FLOWWM.** Live forecasting from a deployed stream requires a schema-compatible inference path and independently validated results. Do not mix unlabeled production traffic into supervised training or present demo simulation as real-world validation.
+
+## ⚠️ Important limitations
+
+- This is a research prototype, not a certified IDS, autonomous network manager, or production change-control system.
+- Forecasts are decision support and are not guarantees of compromise or mitigation success.
+- Production telemetry trust requires explicit authorized source IDs and network scopes; lab data remains inspection-only.
+- Automated switch/router changes must remain behind a separate approved policy, operator confirmation, audit, verification, and rollback process.
+- No accuracy score—including 100%—should be claimed without a reproducible, leakage-resistant evaluation on representative independent data.
+- PCAPs and telemetry can contain sensitive information. Minimize retention, restrict access, and never commit captures, credentials, customer logs, databases, or private model artifacts.
+
+## 📚 Project docs
+
+- [Live Telemetry and FLOWWM Runbook](docs/LIVE_TELEMETRY_MODEL_RUNBOOK.md)
+- [Telemetry schema and ML data notes](ml-engine/TELEMETRY_V2.md)
+- [License](LICENSE) · [Third-party notices](NOTICE)
+
+## 📜 License
+
+ThreatForage is distributed under the [Apache License 2.0](LICENSE). Dataset, dependency, and model-artifact terms may differ; review their individual licenses before redistribution.
+
+<div align="center">
+
+**Observe carefully · forecast transparently · keep operators in control**
+
+</div>
