@@ -191,6 +191,15 @@ The live collector normalizes events, applies provenance gates, and can produce 
 - No accuracy score—including 100%—should be claimed without a reproducible, leakage-resistant evaluation on representative independent data.
 - PCAPs and telemetry can contain sensitive information. Minimize retention, restrict access, and never commit captures, credentials, customer logs, databases, or private model artifacts.
 
+
+## 📽️ Video Demo
+
+
+
+https://github.com/user-attachments/assets/15564b87-2c39-4b5f-a427-1e5e6a6eb77d
+
+
+
 ## 📚 Project docs
 
 - [Live Telemetry and FLOWWM Runbook](docs/LIVE_TELEMETRY_MODEL_RUNBOOK.md)
