@@ -28,6 +28,7 @@ from app.api.v1.endpoints import (
     discovery_enrichment,
     graph_topology,
     config_automation,
+    telemetry,
 )
 
 api_router = APIRouter()
@@ -56,5 +57,5 @@ api_router.include_router(discovery_evidence.router)
 api_router.include_router(discovery_enrichment.router)
 api_router.include_router(graph_topology.router)
 api_router.include_router(config_automation.router)
+api_router.include_router(telemetry.router)
 api_router.include_router(system.router, prefix="/system", tags=["system"])
-

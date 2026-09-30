@@ -21,6 +21,7 @@ import { AIIntelligenceView } from '@/components/views/AIIntelligenceView';
 import { SettingsView } from '@/components/views/SettingsView';
 import { GraphAnalysisView } from '@/components/views/GraphAnalysisView';
 import { PassiveAnalysisView } from '@/components/views/PassiveAnalysisView';
+import { LiveTelemetryView } from '@/components/views/LiveTelemetryView';
 import { MitigationCacheView } from "./MitigationCacheView";
 import { PresentationModeView } from '@/components/views/PresentationModeView';
 import { TimelineScrubber } from '@/components/timeline/TimelineScrubber';
@@ -32,7 +33,7 @@ import { usePredictionStore } from '@/store/predictionStore';
 import { useUIStore } from '@/store/uiStore';
 import { cn } from '@/utils/classnames';
 import { TopologyNode } from '@/types';
-import { Activity, Radio } from 'lucide-react';
+import { Activity, Brain, Clock3, FileSearch, Radio } from 'lucide-react';
 import api, { authHeaders } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
@@ -104,21 +105,21 @@ function KpiRow({ incidentsAvailable }: { incidentsAvailable: boolean }) {
   }, []);
 
   const kpi = [
-    { label: 'Open incidents', value: incidentsAvailable ? open : '—', detail: incidentsAvailable ? 'In loaded incidents' : 'Data unavailable' },
-    { label: 'Suspicious assets', value: metricsAvailable ? metrics?.suspicious_assets ?? '—' : '—', detail: 'Inventory snapshot' },
-    { label: 'Critical incidents', value: incidentsAvailable ? critical : '—', detail: incidentsAvailable ? 'In loaded incidents' : 'Data unavailable' },
-    { label: 'Compromised assets', value: metricsAvailable ? metrics?.compromised_assets ?? '—' : '—', detail: 'Inventory snapshot' },
+    { label: 'Incidents', value: incidentsAvailable ? open : '—', detail: `${incidentsAvailable ? critical : '—'} critical · open` },
+    { label: 'Asset risk', value: metricsAvailable ? metrics?.suspicious_assets ?? '—' : '—', detail: `${metricsAvailable ? metrics?.compromised_assets ?? '—' : '—'} compromised assets` },
+    { label: 'Monitored assets', value: metricsAvailable ? metrics?.assets ?? '—' : '—', detail: 'Current inventory' },
     { label: 'Vulnerabilities', value: metricsAvailable ? metrics?.vulnerabilities ?? '—' : '—', detail: 'Recorded findings' },
-    { label: 'Monitored assets', value: metricsAvailable ? metrics?.assets ?? '—' : '—', detail: 'Inventory snapshot' },
   ];
 
   return (
-    <div aria-label="Operations summary" className="console-shell-chrome grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 px-3 py-3 sm:px-4 border-b border-[var(--border-primary)]">
+    <div aria-label="Operations summary" className="console-shell-chrome grid grid-cols-2 xl:grid-cols-4 gap-2 px-3 py-2.5 sm:px-4 border-b border-[var(--border-primary)]">
       {kpi.map((k) => (
-        <div key={k.label} className="console-metric min-w-0 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl px-3 py-3">
-          <div className="text-[11px] font-medium text-[var(--text-secondary)]">{k.label}</div>
-          <div className="my-1 text-2xl font-semibold tabular-nums leading-snug text-[var(--text-primary)]">{k.value}</div>
-          <div className="text-[10px] text-[var(--text-secondary)]">{k.value === '—' ? 'Data unavailable' : k.detail}</div>
+        <div key={k.label} className="console-metric min-w-0 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl px-3 py-2.5 sm:px-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-xs font-medium text-[var(--text-secondary)]">{k.label}</div>
+            <div className="text-xl font-semibold tabular-nums leading-none text-[var(--text-primary)]">{k.value}</div>
+          </div>
+          <div className="mt-1.5 truncate text-[10px] text-[var(--text-secondary)]">{k.value === '—' ? 'Data unavailable' : k.detail}</div>
         </div>
       ))}
     </div>
@@ -136,6 +137,7 @@ export function CommandCenter() {
   const [incidentsAvailable, setIncidentsAvailable] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [packetInspectorOpen, setPacketInspectorOpen] = useState(false);
+  const [contextPanel, setContextPanel] = useState<'timeline' | 'evidence' | 'model'>('evidence');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -312,15 +314,37 @@ export function CommandCenter() {
                 </div>
               </div>
 
-              <div className="flex-none min-h-64 xl:h-64 border-t border-[var(--border-primary)] flex flex-col xl:flex-row overflow-auto xl:overflow-hidden">
-                <div className="w-full min-h-64 xl:w-1/2 xl:h-full border-b xl:border-b-0 xl:border-r border-[var(--border-primary)] flex flex-col">
-                  <Timeline className="w-full h-1/2 border-b border-[var(--border-primary)]" />
-                  <EvidenceTabs className="w-full h-1/2" incidentId={activeIncident?.id} />
+              <section aria-label="Incident context" className="flex-none min-h-64 xl:h-64 border-t border-[var(--border-primary)] flex flex-col overflow-hidden">
+                <div className="console-shell-chrome flex shrink-0 items-center gap-1 overflow-x-auto border-b border-[var(--border-primary)] bg-[var(--bg-secondary)] px-3 py-1.5" role="tablist" aria-label="Incident context panels">
+                  {([
+                    ['evidence', 'Evidence & assets', FileSearch],
+                    ['timeline', 'Timeline', Clock3],
+                    ['model', 'Model snapshot', Brain],
+                  ] as const).map(([key, label, Icon]) => (
+                    <button
+                      key={key}
+                      id={`context-tab-${key}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={contextPanel === key}
+                      aria-controls="incident-context-panel"
+                      onClick={() => setContextPanel(key)}
+                      className={cn(
+                        'inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors',
+                        contextPanel === key ? 'bg-[var(--accent-blue)]/12 text-[var(--accent-blue)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" />{label}
+                    </button>
+                  ))}
+                  <span className="ml-auto hidden pr-1 text-[10px] text-[var(--text-muted)] sm:block">Select a panel to view its details</span>
                 </div>
-                <div className="w-full min-h-64 xl:w-1/2 xl:h-full overflow-hidden">
-                  <WorldModelPanel showPcapAnalysis={false} />
+                <div id="incident-context-panel" role="tabpanel" aria-labelledby={`context-tab-${contextPanel}`} className="min-h-0 flex-1 overflow-hidden">
+                  {contextPanel === 'timeline' && <Timeline className="h-full min-h-0" />}
+                  {contextPanel === 'evidence' && <EvidenceTabs className="h-full min-h-0" incidentId={activeIncident?.id} />}
+                  {contextPanel === 'model' && <WorldModelPanel showPcapAnalysis={false} />}
                 </div>
-              </div>
+              </section>
             </div>
           )}
 
@@ -334,6 +358,7 @@ export function CommandCenter() {
           {activeView === 'settings' && <SettingsView />}
           {activeView === 'graph-analysis' && <GraphAnalysisView />}
           {activeView === 'passive-analysis' && <PassiveAnalysisView />}
+          {activeView === 'live-telemetry' && <LiveTelemetryView />}
           {activeView === 'presentation' && <PresentationModeView />}
           {activeView === 'mitigation-cache' && <MitigationCacheView />}
           {(activeView === 'network' || activeView === 'world-model') && (

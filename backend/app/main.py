@@ -15,6 +15,7 @@ from app.core.logging import configure_logging, get_logger
 from app.api.v1.router import api_router
 from app.ws.manager import ws_manager
 from app.services.network_discovery import discovery_service
+from app.services.live_telemetry import live_telemetry_service
 from app.core.security import decode_token
 
 
@@ -40,11 +41,16 @@ async def lifespan(app: FastAPI):
 
     # Start network device discovery (auto-register devices as they join)
     await discovery_service.start()
+    # Start the bounded passive/flow telemetry collector. It is disabled by
+    # default and becomes active only when explicitly enabled in deployment
+    # configuration.
+    await live_telemetry_service.start()
 
     yield
     
     # Shutdown
     logger.info("Shutting down...")
+    await live_telemetry_service.stop()
     await discovery_service.stop()
     await ws_manager.stop()
     await redis_manager.close()

@@ -30,6 +30,7 @@ from app.schemas.network import (
 from app.services.audit_service import log_audit
 from app.services.device_command_plan import build_intent_plan, list_profiles
 from app.core.config import get_settings
+from app.services.live_telemetry import live_telemetry_service
 
 router = APIRouter()
 settings = get_settings()
@@ -51,9 +52,22 @@ async def live_telemetry(
 
     The mounted directory is written by the lab sensor and mounted read-only
     into the API. This endpoint intentionally does not execute training or
-    mutate evidence; the ML stream worker consumes the same files using the
-    canonical provenance pipeline.
+    mutate evidence. Disabled-collector fallback records are explicitly
+    unverified and must not be treated as production inventory evidence.
     """
+    # Prefer the supervised collector when enabled. The bounded file-reader
+    # fallback remains available for offline lab deployments.
+    if live_telemetry_service.enabled:
+        status = live_telemetry_service.status()
+        records = live_telemetry_service.recent(limit)
+        return {
+            "available": bool(records),
+            "records": records,
+            "source": "live-telemetry-collector",
+            "count": len(records),
+            "status": status,
+        }
+
     root = Path(settings.LIVE_TELEMETRY_DIR).resolve()
     if not root.exists():
         return {"available": False, "records": [], "source": str(root)}
@@ -74,6 +88,14 @@ async def live_telemetry(
             except json.JSONDecodeError:
                 continue
             item["_source_file"] = path.name
+            item["_provenance"] = {
+                "profile": "lab",
+                "source_id": "zeek_file_fallback",
+                "source_allowlisted": False,
+                "scope_match": None,
+                "trusted_for_graph": False,
+                "reason": "disabled-collector file fallback is inspection-only",
+            }
             try:
                 flow = telemetry_normalizer.normalize(item)
                 item["normalized_flow"] = {
@@ -95,7 +117,11 @@ async def live_telemetry(
                 item["normalized_flow"] = None
             records.append(item)
     records = records[-limit:]
-    return {"available": bool(records), "records": records, "source": str(root), "count": len(records)}
+    return {
+        "available": bool(records), "records": records, "source": "mounted-file-fallback",
+        "count": len(records),
+        "provenance": {"profile": "lab", "trusted_for_graph": False, "inventory_promotion": False},
+    }
 
 
 @router.get("/device-profiles", response_model=List[dict])

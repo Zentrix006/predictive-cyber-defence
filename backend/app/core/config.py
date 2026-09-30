@@ -95,15 +95,46 @@ class Settings(BaseSettings):
     # Skip hosts whose IP falls inside these CIDRs (e.g. don't flag our own
     # infrastructure / Docker subnets as newly joined devices).
     NETWORK_DISCOVERY_EXCLUDE: str = ""  # comma-separated CIDRs
+    # The main console is telemetry/evidence driven. QR/browser enrollment is
+    # reserved for Demo-2 and is disabled on the real project by default.
+    MAIN_REAL_TELEMETRY_ONLY: bool = True
     # Dual-Homed Architecture Settings
-    MGMT_IFACE: str = "eth0" # For active discovery and mitigation
-    CAPTURE_IFACE: str = "eth1" # For passive Zeek traffic capture
+    MGMT_IFACE: str = "eth0" # Backwards-compatible discovery alias
+    CAPTURE_IFACE: str = "eth1" # Backwards-compatible capture alias
     MGMT_SUBNET: str = "172.20.20.0/24"
+
+    # Live dual-homed telemetry plane. Management is used for authenticated
+    # device polling/configuration; capture remains passive SPAN/TAP only.
+    LIVE_TELEMETRY_ENABLED: bool = False
+    LIVE_TELEMETRY_POLL_SECONDS: float = 1.0
+    LIVE_TELEMETRY_WINDOW_SECONDS: float = 5.0
+    LIVE_TELEMETRY_BUFFER_CAPACITY: int = 10000
+    LIVE_TELEMETRY_MAX_API_RECORDS: int = 1000
+    LIVE_TELEMETRY_STALE_SECONDS: float = 30.0
+    # Inventory/model graph consumption is fail-closed. Production telemetry
+    # must be explicitly scoped and sourced; mounted lab logs are inspection-only.
+    LIVE_TELEMETRY_PROFILE: str = "lab"
+    LIVE_TELEMETRY_APPROVED_CIDRS: str = ""
+    LIVE_TELEMETRY_APPROVED_SOURCE_IDS: str = ""
+    TELEMETRY_MGMT_IFACE: str = "eth0"
+    TELEMETRY_MGMT_VLAN: int = 40
+    TELEMETRY_MGMT_CIDR: str = "172.20.20.0/24"
+    TELEMETRY_MGMT_GATEWAY: str = ""
+    TELEMETRY_CAPTURE_IFACE: str = "eth1"
+    TELEMETRY_CAPTURE_MODE: str = "span_tap"
+    FLOW_EXPORT_ENABLED: bool = False
+    FLOW_EXPORT_LISTEN_ADDR: str = "0.0.0.0"
+    FLOW_EXPORT_LISTEN_PORT: int = 2055
+    FLOW_EXPORT_ALLOWED_CIDRS: str = ""
 
     # Read-only mounted Zeek/flow telemetry directory. The collector remains
     # outside the API process; this path is only used for bounded access to
     # the latest captured records and must be mounted read-only in production.
     LIVE_TELEMETRY_DIR: str = "/lab-telemetry"
+
+    # Immutable filesystem evidence bundles. Live sensor artifacts and
+    # operator-preserved passive investigations are kept in separate roots.
+    EVIDENCE_ROOT: str = "/evidence"
 
     # Feature Flags
     FEATURE_DECEPTION: bool = True

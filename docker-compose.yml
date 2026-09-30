@@ -67,11 +67,31 @@ services:
       CUDA_VISIBLE_DEVICES: "0"
       LOG_LEVEL: INFO
       NETWORK_DISCOVERY_ENABLED: ${NETWORK_DISCOVERY_ENABLED:-false}
+      MAIN_REAL_TELEMETRY_ONLY: ${MAIN_REAL_TELEMETRY_ONLY:-true}
+      LIVE_TELEMETRY_ENABLED: ${LIVE_TELEMETRY_ENABLED:-false}
+      LIVE_TELEMETRY_PROFILE: ${LIVE_TELEMETRY_PROFILE:-lab}
+      LIVE_TELEMETRY_APPROVED_CIDRS: ${LIVE_TELEMETRY_APPROVED_CIDRS:-}
+      LIVE_TELEMETRY_APPROVED_SOURCE_IDS: ${LIVE_TELEMETRY_APPROVED_SOURCE_IDS:-}
+      LIVE_TELEMETRY_DIR: /lab-telemetry
+      EVIDENCE_ROOT: /evidence
+      TELEMETRY_MGMT_IFACE: ${TELEMETRY_MGMT_IFACE:-eth0}
+      TELEMETRY_MGMT_VLAN: ${TELEMETRY_MGMT_VLAN:-40}
+      TELEMETRY_MGMT_CIDR: ${TELEMETRY_MGMT_CIDR:-172.20.20.0/24}
+      TELEMETRY_MGMT_GATEWAY: ${TELEMETRY_MGMT_GATEWAY:-}
+      TELEMETRY_CAPTURE_IFACE: ${TELEMETRY_CAPTURE_IFACE:-eth1}
+      TELEMETRY_CAPTURE_MODE: ${TELEMETRY_CAPTURE_MODE:-span_tap}
+      FLOW_EXPORT_ENABLED: ${FLOW_EXPORT_ENABLED:-false}
+      FLOW_EXPORT_LISTEN_ADDR: ${FLOW_EXPORT_LISTEN_ADDR:-0.0.0.0}
+      FLOW_EXPORT_LISTEN_PORT: ${FLOW_EXPORT_LISTEN_PORT:-2055}
+      FLOW_EXPORT_ALLOWED_CIDRS: ${FLOW_EXPORT_ALLOWED_CIDRS:-}
       DEBUG: ${DEBUG:-false}
       DEV_AUTH_BYPASS: ${DEV_AUTH_BYPASS:-false}
       PYTHONPATH: /app:/ml-engine
     ports:
       - "8000:8000"
+      # NetFlow/IPFIX exporters may send to this port when FLOW_EXPORT_ENABLED=true.
+      # Restrict the host firewall to approved exporter addresses in production.
+      - "2055:2055/udp"
     depends_on:
       postgres:
         condition: service_healthy
@@ -82,6 +102,10 @@ services:
       - ./shared:/app/shared
       - ./ml-engine:/ml-engine
       - ./ml-engine/dataset/telemetry-capture:/lab-telemetry:ro
+      - ./evidence:/evidence
+      # Read-only host interface inventory for the Settings selector. Packet
+      # capture remains delegated to the dedicated SPAN/TAP/flow sensor.
+      - /sys/class/net:/host-sys/class/net:ro
     gpus: all
 
   # One-off training container: runs the ML training as its own PID-1 process so

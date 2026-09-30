@@ -14,6 +14,7 @@ type ViewType =
   | 'world-model'
   | 'graph-analysis'
   | 'passive-analysis'
+  | 'live-telemetry'
   | 'presentation'
   | 'mitigation-cache';
 
